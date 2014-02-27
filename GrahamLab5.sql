@@ -15,6 +15,7 @@ where agents.aid=orders.aid
 -- Q2
 --had a lot of trouble with this
 
+/*
 Select distinct orders.pid
 from orders,
      agents,
@@ -22,7 +23,12 @@ from orders,
 where orders.aid=agents.aid
   and customers.cid=orders.cid
   and customers.city = ('Kyoto')
-  
+ */
+ select distinct  Loopthrough2nd.pid 
+from  Orders Loopthrough1st, orders Loopthrough2nd, Customers
+where Loopthrough1st.cid = customers.cid 
+	and   Loopthrough1st.aid = Loopthrough2nd.aid
+	and   customers.city = 'Kyoto'
 -- Q3
 Select name
 from customers 
@@ -59,6 +65,7 @@ where customers.cid=orders.cid
 
 -- Q7  
 --couldn't figure out how to not display duluth
+/*
 Select customers.name, customers.city
 from customers,
      products
@@ -71,7 +78,19 @@ where customers.city=products.city
 				
 				)
                             
- 
+ */
+ select  c2.name, c2.city
+from    customers c1,
+	orders,
+	products,
+	customers c2
+where   c1.cid = orders.cid
+	and products.pid = orders.pid
+	and c1.city = products.city
+	and c1.city = c2.city
+	group by  c2.name, c2.city
+	order by count (c2.city) desc
+	limit 2
 
 
 
