@@ -4,10 +4,35 @@
 --Reference stack overflow for cast function 
 
 --Q1
---i dont understand the question
+
+Select distinct customers.name, customers.city
+from customers,
+     products
+where customers.city=products.city
+  and customers.city = (
+				Select city
+				from products
+				where quantity=(select max(quantity)
+						from products)
+				order by quantity desc
+				limit 1)
+
+
 
 --Q2
---i dont understand the question
+Select distinct customers.name, customers.city
+from customers,
+     products
+where customers.city=products.city
+  and customers.city in (
+				Select city
+				from products
+				where quantity>(select avg(quantity)
+						from products)
+				
+				--limit 1
+				)
+
 
 --Q3
 Select name, price
