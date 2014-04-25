@@ -24,13 +24,20 @@ Create Table Ninja(PID integer not null primary key references People(PID),
                    Stealth integer not null check(Stealth>=0 or Strength<=10));
 
 Create Table Client(PID integer not null primary key references People(PID),
-                    Address varchar(40),
+
+                    StreetAdd varchar(25),
+                    City varchar(25),
+                    State varchar(2),
+                    Zip varchar(5),
                     PayPlan varchar(9) check(PayPlan='Standard' or PayPlan='Premium'),
                     Descr text);
 
 
 Create Table Target(PID integer not null primary key references People(PID),
-                    Address text,
+                    StreetAdd varchar(25),
+                    City varchar(25),
+                    State varchar(2),
+                    Zip varchar(5),
                     TargetLevel text check(TargetLevel='Low' or TargetLevel='Medium'
                                            or TargetLevel='High'),
                     HairCol varchar(15),
@@ -97,20 +104,20 @@ Values(1,'2012-05-25',4,7,10,8),
       (8,'2010-03-11',5,8,2,5),
       (9,'2010-03-11',10,10,10,10);
 
-Insert into Client(PID, Address, PayPlan, Descr)
-Values (10, '139 Ellis Rd Havertown PA 19083', 'Standard', 'Phillip likes long walks on the beach'),
-       (11, '3399 North Rd Poughkeepsie NY 12601','Standard', 'Greg likes Fishing'),
-       (12, '222 Dark Ln SomeTown CA 19583', 'Premium', 'Megan like to bowl');
+Insert into Client(PID, StreetAdd, City, State, Zip, PayPlan, Descr)
+Values (10, '139 Ellis Rd', 'Havertown', 'PA', '19083', 'Standard', 'Phillip likes long walks on the beach'),
+       (11, '3399 North Rd', 'Poughkeepsie', 'NY', '12601','Standard', 'Greg likes Fishing'),
+       (12, '222 Dark Ln', 'SomeTown', 'CA', '19583', 'Premium', 'Megan like to bowl');
 
-Insert into Target(PID, Address, TargetLevel, HairCol, EyeCol, Ethnicity,
+Insert into Target(PID, StreetAdd, City, State, Zip, TargetLevel, HairCol, EyeCol, Ethnicity,
                    WeightLbs, HeightFt, Gender, Descr, BountyUSD)
-Values (13, '345 Astreet Acity WA 19283', 'Low', 'Grey', 'Green', 
+Values (13, '345 Astreet', 'Acity', 'WA', '19283', 'Low', 'Grey', 'Green', 
         'White', 140.5, 5.5, 'M', 'Billy works at a casino', 500),
 
-        (14, '3658 Fox Blv Hopeville PA 19039', 'Medium', 'Red', 'Blue', 
+        (14, '3658 Fox Blv', 'Hopeville', 'PA', '19039', 'Medium', 'Red', 'Blue', 
         'Asian', 120, 5, 'M', 'Frank runs a store', 1000),
 
-        (15, '77 West Rd Easton TX 93929','High', 'Black', 'Brown', 
+        (15, '77 West Rd', 'Easton', 'TX', '93929','High', 'Black', 'Brown', 
         'White', 120.5, 5, 'F', 'Lucy has a nail salon', 5000);
 
 Insert Into Tools(ToolName, PriceUSD, Descr)
@@ -194,7 +201,10 @@ Create View NinjaDetails as
   order by NinjaName asc; 
 
 Create View ClientDetails as
-  Select Concat(FName,' ',LName) as ClientName, Address, PayPlan as PaymentPlan, Descr as Description
+  Select Concat(FName,' ',LName) as ClientName, 
+         Concat(StreetAdd,' ',City,' ',State,' ',Zip) as Address, 
+         PayPlan as PaymentPlan, 
+         Descr as Description
   from People,
        Client
   Where People.PID=Client.PID
@@ -202,7 +212,7 @@ Create View ClientDetails as
 
 Create View TargetDetails as
   Select Concat(FName,' ',LName) as TargetName, 
-         Address, 
+         Concat(StreetAdd,' ',City,' ',State,' ',Zip) as Address, 
          TargetLevel, 
          HairCol as HairColor,
          EyeCol as EyeColor,
@@ -409,7 +419,10 @@ $ClientCheck$
 begin
    if exists(Select PID
              from client
-             where Address=new.Address
+             where StreetAdd=new.StreetAdd
+               and City=new.City
+               and State=new.State
+               and Zip=new.Zip
                and PayPlan=new.PayPlan
                and Descr=new.Descr)
    then
@@ -426,7 +439,10 @@ $TargetCheck$
 begin
    if exists(Select PID
              from target
-             where Address=new.address
+             where StreetAdd=new.StreetAdd
+               and City=new.City
+               and State=new.State
+               and Zip=new.Zip
                and targetlevel=new.targetlevel
                and haircol=new.haircol
                and eyecol=new.eyecol
@@ -478,7 +494,8 @@ $MissionCheck$
  Create Trigger MissionCheck before insert on Mission 
  for each row execute procedure MissionCheck();
 
-
+Select * from client;
+Select * from Target;
 
  --Security
 Grant all Privileges on all tables in schema public to Administrator;
